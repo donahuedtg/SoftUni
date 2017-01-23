@@ -8,7 +8,7 @@ namespace SomeWorkDictionary
 {
     class Program
     {		
-		static void Main(string[] args)
+	static void Main(string[] args)
         {
             Dictionary<int, int>  resultList = GetStatusOfAccrProfGroup();
             int[] arr = { 100, 500, 1000, 1200, 300, 200 };
@@ -95,5 +95,5 @@ namespace SomeWorkDictionary
             }
 
         }
-	}
+    }
 }
