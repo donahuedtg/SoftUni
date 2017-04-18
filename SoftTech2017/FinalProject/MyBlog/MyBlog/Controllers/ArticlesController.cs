@@ -22,7 +22,7 @@ namespace MyBlog.Controllers
         {
             IEnumerable<Article> data = db.Articles.Include(x => x.Author);
             List<ArticleView> list = ArticleView.ArticleList(data);
-
+            
             return View(list);
         }
 
@@ -34,6 +34,12 @@ namespace MyBlog.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Article article = db.Articles.Find(id);
+
+            var email = User.Identity.Name;
+            var currUserId = db.Users.Where(x => x.Email == email).First().Id;
+            var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
+            ViewBag.CurrentAuthorId = authorId;
+
             if (article == null)
             {
                 return HttpNotFound();
@@ -79,6 +85,13 @@ namespace MyBlog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
+            bool isAuthor = IsAuthor((int)id);
+
+            if (!isAuthor)
+            {
+                return RedirectToAction("Index");
+            }
             Article article = db.Articles.Find(id);
             ArticleView articleView = ArticleView.ArticleData(article);
 
@@ -117,6 +130,14 @@ namespace MyBlog.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
+            bool isAuthor = IsAuthor((int)id);
+
+            if (!isAuthor)
+            {
+                return RedirectToAction("Index");
+            }
+
             Article article = db.Articles.Find(id);
             if (article == null)
             {
@@ -135,6 +156,26 @@ namespace MyBlog.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+
+        public bool IsAuthor(int id)
+        {
+            var email = User.Identity.Name;
+            var currUserId = db.Users.Where(x => x.Email == email).First().Id;
+            var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
+            bool isAuthor = db.Articles.Any(x => x.Id == id && x.AuthorId == authorId);
+
+            if (isAuthor)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //public bool IsAdmin()
+        //{
+
+        //}
 
         protected override void Dispose(bool disposing)
         {
