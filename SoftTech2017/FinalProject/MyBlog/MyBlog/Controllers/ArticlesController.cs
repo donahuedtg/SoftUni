@@ -34,6 +34,7 @@ namespace MyBlog.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Article article = db.Articles.Find(id);
+            ArticleView articleView = ArticleView.ArticleData(article);
 
             var email = User.Identity.Name;
             var currUserId = db.Users.Where(x => x.Email == email).First().Id;
@@ -44,7 +45,7 @@ namespace MyBlog.Controllers
             {
                 return HttpNotFound();
             }
-            return View(article);
+            return View(articleView);
         }
 
         // GET: Articles/Create

@@ -18,8 +18,11 @@ namespace MyBlog.ViewModels
 
         public DateTime DateCreated { get; set; }
 
-        [Display(Name = "Author")]
-        public string FirstName { get; set; }
+        public string Author { get; set; }
+
+        public int AuthorId { get; set; }
+
+        public ICollection<Comment> Comments { get; set; }
 
         public static List<ArticleView> ArticleList(IEnumerable<Article> data)
         {
@@ -32,7 +35,8 @@ namespace MyBlog.ViewModels
                 tmp.Title = item.Title;
                 tmp.Content = item.Content;
                 tmp.DateCreated = item.DateCreated;
-                tmp.FirstName = item.Author.FirstName;
+                tmp.Author = item.Author.FirstName;
+                tmp.AuthorId = item.AuthorId;
 
                 list.Add(tmp);
             }
@@ -48,7 +52,9 @@ namespace MyBlog.ViewModels
             tmp.Title = data.Title;
             tmp.Content = data.Content;
             tmp.DateCreated = data.DateCreated;
-            tmp.FirstName = data.Author.FirstName;
+            tmp.Author = data.Author.FirstName;
+            tmp.AuthorId = data.AuthorId;
+            tmp.Comments = data.Comments;
 
             return tmp;
         }

@@ -10,6 +10,7 @@ namespace MyBlog.Models
         public Author()
         {
             Articles = new HashSet<Article>();
+            Comments = new HashSet<Comment>();
         }
 
         public int Id { get; set; }
@@ -19,5 +20,7 @@ namespace MyBlog.Models
         public string UserId { get; set; }
 
         public virtual ICollection<Article> Articles { get; set; }
+
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

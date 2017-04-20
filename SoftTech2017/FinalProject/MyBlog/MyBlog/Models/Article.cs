@@ -10,6 +10,7 @@ namespace MyBlog.Models
         public Article()
         {
             DateCreated = DateTime.Now;
+            Comments = new HashSet<Comment>();
         }
 
 
@@ -24,6 +25,8 @@ namespace MyBlog.Models
         public int AuthorId { get; set; }
 
         public virtual Author Author { get; set; }
+
+        public virtual ICollection<Comment> Comments { get; set; }
 
     }
 }
