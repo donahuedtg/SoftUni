@@ -1,6 +1,7 @@
 ﻿using MyBlog.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -12,8 +13,11 @@ namespace MyBlog.ViewModels
 
         public int Id { get; set; }
 
+
+        [DisplayName("Заглавие")]
         public string Title { get; set; }
 
+        [DisplayName("Съдържание")]
         public string Content { get; set; }
 
         public DateTime DateCreated { get; set; }
@@ -23,6 +27,8 @@ namespace MyBlog.ViewModels
         public int AuthorId { get; set; }
 
         public ICollection<Comment> Comments { get; set; }
+
+        public int Count { get; set; }
 
         public static List<ArticleView> ArticleList(IEnumerable<Article> data)
         {
@@ -37,6 +43,8 @@ namespace MyBlog.ViewModels
                 tmp.DateCreated = item.DateCreated;
                 tmp.Author = item.Author.FirstName;
                 tmp.AuthorId = item.AuthorId;
+                tmp.Count = item.Comments.Count;
+                             
 
                 list.Add(tmp);
             }

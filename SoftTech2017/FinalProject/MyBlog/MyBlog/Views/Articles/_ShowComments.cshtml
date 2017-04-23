@@ -1,0 +1,31 @@
+﻿@model MyBlog.ViewModels.ArticleView
+
+
+@if (Model.Comments.Count > 0)
+{
+    foreach (var comment in Model.Comments)
+    {
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <p>@("Коментар от " + comment.Author.FirstName + " публикуван на " + comment.DateAdded.ToString(@"dd.MM.yyyy"))</p>
+                </div>
+                <div class="panel-body">
+                    <p>@comment.CommentText</p>
+                </div>
+            </div>
+        </div>
+
+    }
+}
+else
+{
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h4 class="panel-title">Няма коментари към тази статия</h4>
+            </div>
+        </div>
+    </div>
+}

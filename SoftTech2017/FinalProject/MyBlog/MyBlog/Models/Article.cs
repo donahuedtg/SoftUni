@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web;
 
@@ -16,8 +17,10 @@ namespace MyBlog.Models
 
         public int Id { get; set; }
 
+        [DisplayName("Заглавие")]
         public string Title { get; set; }
 
+        [DisplayName("Съдържание")]
         public string Content { get; set; }
 
         public DateTime DateCreated { get; set; }

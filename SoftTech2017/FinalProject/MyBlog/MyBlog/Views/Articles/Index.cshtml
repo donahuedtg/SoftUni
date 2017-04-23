@@ -5,24 +5,25 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
-
 <p>
-    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
+    @Html.ActionLink("Създай", "Create", null, new { @class = "btn btn-success" })
 </p>
 <table class="table">
     <tr>
         <th>
-            Title
+            Заглавие
         </th>
         <th>
-            Content
+            Съдържание
         </th>
         <th>
-            Date Created
+            Дата на създаване
         </th>
         <th>
-            Author
+            Автор
+        </th>
+        <th>
+            Брой коментари
         </th>
         <th></th>
     </tr>
@@ -42,7 +43,10 @@
             @Html.DisplayFor(modelItem => item.Author)
         </td>
         <td>
-            @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+            @item.Count
+        </td>
+        <td>
+            @Html.ActionLink("Инфо", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
         </td>
     </tr>
 }

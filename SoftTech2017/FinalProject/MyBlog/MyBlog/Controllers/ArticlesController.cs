@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using MyBlog.Models;
 using MyBlog.ViewModels;
+using MyBlog.Extensions;
 
 namespace MyBlog.Controllers
 {
@@ -34,6 +35,12 @@ namespace MyBlog.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Article article = db.Articles.Find(id);
+
+            if (article == null)
+            {
+                return HttpNotFound();
+            }
+
             ArticleView articleView = ArticleView.ArticleData(article);
 
             var email = User.Identity.Name;
@@ -41,10 +48,7 @@ namespace MyBlog.Controllers
             var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
             ViewBag.CurrentAuthorId = authorId;
 
-            if (article == null)
-            {
-                return HttpNotFound();
-            }
+
             return View(articleView);
         }
 
@@ -73,9 +77,14 @@ namespace MyBlog.Controllers
 
                 db.Articles.Add(tmp);
                 db.SaveChanges();
+
+                string message = string.Format($"Статия {article.Id} е записана успешно!");
+                this.AddNotification(message, NotificationType.SUCCESS);
                 return RedirectToAction("Index");
             }
 
+            string messageError = string.Format($"Статията не беше записана, моля проверете данните!");
+            this.AddNotification(messageError, NotificationType.ERROR);
             return View(article);
         }
 
@@ -119,58 +128,102 @@ namespace MyBlog.Controllers
 
                 db.Entry(articleForEdit).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(article);
-        }
 
-        // GET: Articles/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            bool isAuthor = IsAuthor((int)id);
-
-            if (!isAuthor)
-            {
+                string message = string.Format($"Статия {article.Id} е редактирана успешно!");
+                this.AddNotification(message, NotificationType.SUCCESS);
                 return RedirectToAction("Index");
             }
 
-            Article article = db.Articles.Find(id);
-            if (article == null)
-            {
-                return HttpNotFound();
-            }
+            string messageError = string.Format($"Статия {article.Id} не беше редактирана, моля проверете данните!");
+            this.AddNotification(messageError, NotificationType.ERROR);
             return View(article);
         }
+
+        //// GET: Articles/Delete/5
+        //public ActionResult Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+
+        //    bool isAuthor = IsAuthor((int)id);
+
+        //    if (!isAuthor)
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+
+        //    Article article = db.Articles.Find(id);
+        //    if (article == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(article);
+        //}
 
         // POST: Articles/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        [HttpPost]
+        public ActionResult Delete(int id)
         {
             Article article = db.Articles.Find(id);
             db.Articles.Remove(article);
             db.SaveChanges();
+
+            string message = string.Format($"Статия {id} е изтрита успешно!");
+            this.AddNotification(message, NotificationType.SUCCESS);
+
             return RedirectToAction("Index");
+        }
+
+        //AjaxAddComments
+        public ActionResult AddNewComment(int id, string text)
+        {
+            string userName = User.Identity.Name;
+            int currentAuthorId = GetCurrentAuthorId(userName);
+            ViewBag.CurrentAuthorId = currentAuthorId;
+
+            Comment tmp = new Comment();
+            tmp.CommentText = text;
+            tmp.AuthorId = currentAuthorId;
+            tmp.ArticleId = id;
+
+            db.Comments.Add(tmp);
+            db.SaveChanges();
+
+            Article article = db.Articles.Find(id);
+
+            if (article == null)
+            {
+                return HttpNotFound();
+            }
+
+            ArticleView articleView = ArticleView.ArticleData(article);
+
+
+
+            return PartialView("_ShowComments", articleView);
         }
 
 
         public bool IsAuthor(int id)
         {
-            var email = User.Identity.Name;
-            var currUserId = db.Users.Where(x => x.Email == email).First().Id;
-            var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
-            bool isAuthor = db.Articles.Any(x => x.Id == id && x.AuthorId == authorId);
+            string userName = User.Identity.Name;
+            int currentAuthorId = GetCurrentAuthorId(userName);
+            bool isAuthor = db.Articles.Any(x => x.Id == id && x.AuthorId == currentAuthorId);
 
             if (isAuthor)
             {
                 return true;
             }
             return false;
+        }
+
+        public int GetCurrentAuthorId(string userName)
+        {
+            string userId = db.Users.Where(x => x.UserName == userName).First().Id;
+            int currentAuthorId = db.Authors.Where(a => a.UserId == userId).First().Id;
+            return currentAuthorId;
         }
 
         //public bool IsAdmin()
@@ -186,5 +239,8 @@ namespace MyBlog.Controllers
             }
             base.Dispose(disposing);
         }
+
+
+ 
     }
 }
