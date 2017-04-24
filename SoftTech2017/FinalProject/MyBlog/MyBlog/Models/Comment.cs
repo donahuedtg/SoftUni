@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -14,6 +15,7 @@ namespace MyBlog.Models
 
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Полето не може да бъде празно!")]
         public string CommentText { get; set; }
 
         public DateTime DateAdded { get; set; }

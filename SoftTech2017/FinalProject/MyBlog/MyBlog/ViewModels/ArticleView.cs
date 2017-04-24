@@ -13,10 +13,11 @@ namespace MyBlog.ViewModels
 
         public int Id { get; set; }
 
-
+        [Required(ErrorMessage = "Полето Заглавие е задължително!")]
         [DisplayName("Заглавие")]
         public string Title { get; set; }
 
+        [Required(ErrorMessage = "Полето Съдържание е задължително!")]
         [DisplayName("Съдържание")]
         public string Content { get; set; }
 
@@ -49,7 +50,7 @@ namespace MyBlog.ViewModels
                 list.Add(tmp);
             }
 
-            return list;
+            return list.OrderByDescending(x => x.DateCreated).ToList();
         }
 
         public static ArticleView ArticleData(Article data)

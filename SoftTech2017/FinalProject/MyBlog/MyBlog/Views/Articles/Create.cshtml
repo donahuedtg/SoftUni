@@ -33,16 +33,63 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Запиши" class="btn btn-default" />
+                @*<input type="submit" value="Запиши" class="btn btn-success" />*@
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#article-save">
+                    Запис
+                </button>
             </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="article-save" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-sm-custom" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title text-center">Записване на нова статия</h4>
+                            <button type="button" class="close" data-dismiss="modal">
+                                
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <h4 class="text-center">Ще бъде записана нова статия.</h4>
+                                <h4 class="text-center">Искате ли да запишете данните.</h4>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row">
+                                <div class="col-lg-offset-3 col-lg-1">
+                                    @using (Html.BeginForm("Create", "Articles", FormMethod.Post))
+                                    {
+
+                                        <input type="submit" value="Да" id="btn-save" class="btn btn-success" />
+                                    }
+                                </div>
+
+                                <div class="col-lg-offset-3 col-lg-1">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Не</button>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 }
 
-<div>
-    @Html.ActionLink("Back to List", "Index", null, new {@class = "btn btn-primary" })
-</div>
+@Html.Partial("_BackToListButton")
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+
+<script>
+    $(document).ready(function () {
+        $('#btn-save').click(function () {
+            $('#article-save').modal('hide');
+        });
+    });
+</script>

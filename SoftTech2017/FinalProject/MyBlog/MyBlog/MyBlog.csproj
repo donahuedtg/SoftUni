@@ -276,12 +276,12 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Articles\Create.cshtml" />
-    <Content Include="Views\Articles\Delete.cshtml" />
     <Content Include="Views\Articles\Details.cshtml" />
     <Content Include="Views\Articles\Edit.cshtml" />
     <Content Include="Views\Articles\Index.cshtml" />
     <Content Include="Views\Articles\_ShowComments.cshtml" />
     <Content Include="Views\Shared\_Notifications.cshtml" />
+    <Content Include="Views\Shared\_BackToListButton.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

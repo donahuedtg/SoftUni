@@ -14,6 +14,51 @@
                 <div class="panel-body">
                     <p>@comment.CommentText</p>
                 </div>
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
+                    <div class="panel-footer">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#comment-del">
+                            Изтриване
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="comment-del" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-sm-custom" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title text-center">Изтриване на коментар.</h4>
+                                        <button type="button" class="close" data-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <h4 class="text-center">Потвърдете изтриването?</h4>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="row">
+                                            <div class="col-lg-offset-3 col-lg-1">
+
+                                                @using (Html.BeginForm("DeleteComment", "Articles", FormMethod.Post))
+                                                {
+                                                    <input type="hidden" name="articleId" value="@comment.ArticleId" />
+                                                    <input type="hidden" name="Id" value="@comment.Id" />
+                                                    <input type="submit" value="Да" id="btn-save" class="btn btn-success" />
+                                                }
+                                            </div>
+
+                                            <div class="col-lg-offset-3 col-lg-1">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Не</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
             </div>
         </div>
 

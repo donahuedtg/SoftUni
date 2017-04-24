@@ -48,20 +48,20 @@ namespace MyBlog.Models
 
     public class LoginViewModel
     {
-        [Required]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Полето Е-мейл е задължително")]
+        [Display(Name = "Е-мейл")]
         [EmailAddress]
         public string Email { get; set; }
 
         //[Required]
         //public string FirstName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Полето Парола е задължително")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Парола")]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Запомни ме?")]
         public bool RememberMe { get; set; }
     }
 
@@ -69,22 +69,22 @@ namespace MyBlog.Models
     {
         [Required]
         [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 2)]
-        [Display(Name = "Name")]
+        [Display(Name = "Име")]
         public string FirstName { get; set; }
 
         [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
+        [Display(Name = "Е-мейл")]
         public string Email { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Парола")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
+        [Display(Name = "Повторете паролата")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }

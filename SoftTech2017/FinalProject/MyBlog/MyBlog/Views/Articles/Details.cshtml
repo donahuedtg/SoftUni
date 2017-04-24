@@ -13,23 +13,26 @@
 <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
 }
 
-<script>
+<script type="text/javascript">
     $(document).ready(function () {
         $('.alert-success-message').hide();
         $('.alert-danger-message').hide();
 
 
-        function funcShowMessage() {
-            $('.alert-success-message').fadeIn(2000);
-            $('.alert-success-message').fadeOut(3000);
+        //function funcShowMessage(data) {
+        //    if (data != null) {
+        //        $('.alert-success-message').fadeIn(2000, function () {
+        //            $('.alert-success-message').fadeOut(5000);
 
-        }
+        //        });
+        //    }
 
-        function funcErrorMessage() {
-            $('.alert-danger-message').fadeIn(2000);
-            $('.alert-danger-message').fadeOut(3000);
+        //}
 
-        }
+        //function funcErrorMessage(data) {
+        //    $('.alert-danger-message').fadeIn(2000);
+
+        //}
     });
 
 </script>
@@ -55,7 +58,7 @@
 
 <p>
     
-        @if (User.Identity.IsAuthenticated && ViewBag.CurrentAuthorId == articleAuthorId)
+        @if (User.Identity.IsAuthenticated && (ViewBag.CurrentAuthorId == articleAuthorId || User.IsInRole("Admin")))
         {
             @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "btn btn-warning" })
 
@@ -67,27 +70,34 @@
 
             <!-- Modal -->
             <div class="modal fade" id="article-del" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
+                <div class="modal-dialog modal-md-custom" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title">Изтриване на статия?</h4>
+                            <h4 class="modal-title text-center">Изтриване на статия?</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                                
                             </button>
                         </div>
                         <div class="modal-body">
                             <div>
-                                <h4>Ще бъде изтрита избраната статия, както и всички коментари към нея.</h4>
+                                <h4 class="text-center">Избраната статия ще бъде премахната.</h4>
+                                <h4 class="text-center">Всички коментари ще бъдат изтрити.</h4>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            @using (Html.BeginForm("Delete", "Articles", FormMethod.Post))
-                            {
-                                <input type="hidden" name="Id" value="@Model.Id" />
-                                <input type="submit" value="Да" class="btn btn-success"/>
-                            }
-
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Не</button>
+                            <div class="row">
+                                <div class="col-lg-offset-3 col-lg-1">
+                                    @using (Html.BeginForm("Delete", "Articles", FormMethod.Post))
+                                    {
+                                        <input type="hidden" name="Id" value="@Model.Id" />
+                                        <input type="submit" value="Да" class="btn btn-success" />
+                                    }
+                                </div>
+                                <div class="col-lg-offset-3 col-lg-1">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Не</button>
+                                </div>
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -106,7 +116,6 @@
             <div class="alert alert-danger alert-danger-message">Възникна грешка, моля опитайте отново.</div>
         </div>
         <div class="panel-body">
-
             <div id="comment-id-div" class="row">
                 @Html.Partial("_ShowComments", Model)
             </div>
@@ -116,7 +125,7 @@
 </div>
 
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h4 class="panel-title">Добави коментар</h4>
@@ -126,24 +135,59 @@
                     @using (@Ajax.BeginForm("AddNewComment", "Articles",
                      new AjaxOptions { InsertionMode = InsertionMode.Replace,
                          HttpMethod = "Post",
-                         
                          OnComplete = "funcShowMessage",
                          OnFailure = "funcErrorMessage",
                          UpdateTargetId = "comment-id-div" }))
                     {
-                        <div class="form-horizontal">
-                            <input type="hidden" name="Id" value="@Model.Id" />
-                            <div class="form-group">
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                                    <textarea name="text" class="form-control" placeholder="Добавете Вашия коментар"></textarea>
-                                </div>
+                        <div  class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                           
+                                <input type="hidden" name="Id" value="@Model.Id" />
+                                <div class="form-group">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        @*<textarea name="text" class="form-control" placeholder="Добавете Вашия коментар"></textarea>*@
+                                        @Html.TextArea("text", new {@class = "form-control", @placeholder = "Добавете Вашия коментар" })
+                                    </div>
 
-                            </div>
-                            <div class="form-group">
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                                    <input type="submit" value="Добави" class="btn btn-success" />
                                 </div>
-                            </div>
+                                <div class="form-group">
+                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                        @*<input type="submit" value="Добави" class="btn btn-success"/>*@
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#comment-add">
+                                            Добави
+                                        </button>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="comment-add" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm-custom" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title text-center">Добавяне на коментар.</h4>
+                                                        <button type="button" class="close" data-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div>
+                                                            <h4 class="text-center">Записване на коментара?</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <div class="row">
+                                                            <div class="col-lg-offset-3 col-lg-1">
+                                                                <button type="submit" id="btn-save" class="btn btn-success">Да</button>
+                                                            </div>
+
+                                                            <div class="col-lg-offset-3 col-lg-1">
+                                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Не</button>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                           
                         </div>
                     }
                 </div>
@@ -152,5 +196,13 @@
     </div>
 </div>
 
-@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-primary" })
+@Html.Partial("_BackToListButton")
 
+
+<script>
+    $(document).ready(function () {
+        $('#btn-save').click(function () {
+            $('#comment-add').modal('hide');
+        });
+    });
+</script>

@@ -23,7 +23,7 @@ namespace MyBlog.Controllers
         {
             IEnumerable<Article> data = db.Articles.Include(x => x.Author);
             List<ArticleView> list = ArticleView.ArticleList(data);
-            
+
             return View(list);
         }
 
@@ -43,11 +43,9 @@ namespace MyBlog.Controllers
 
             ArticleView articleView = ArticleView.ArticleData(article);
 
-            var email = User.Identity.Name;
-            var currUserId = db.Users.Where(x => x.Email == email).First().Id;
-            var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
-            ViewBag.CurrentAuthorId = authorId;
-
+            string userName = User.Identity.Name;
+            int currentAuthorId = GetCurrentAuthorId(userName);
+            ViewBag.CurrentAuthorId = currentAuthorId;
 
             return View(articleView);
         }
@@ -59,8 +57,6 @@ namespace MyBlog.Controllers
         }
 
         // POST: Articles/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,Title,Content")] ArticleView article)
@@ -70,15 +66,14 @@ namespace MyBlog.Controllers
                 Article tmp = new Article();
                 tmp.Title = article.Title;
                 tmp.Content = article.Content;
-                var email = User.Identity.Name;
-                var currUserId = db.Users.Where(x => x.Email == email).First().Id;
-                var authorId = db.Authors.First(x => x.UserId == currUserId).Id;
+                string userName = User.Identity.Name;
+                int authorId = GetCurrentAuthorId(userName);
                 tmp.AuthorId = authorId;
 
                 db.Articles.Add(tmp);
                 db.SaveChanges();
 
-                string message = string.Format($"Статия {article.Id} е записана успешно!");
+                string message = string.Format($"Статия {tmp.Id} е записана успешно!");
                 this.AddNotification(message, NotificationType.SUCCESS);
                 return RedirectToAction("Index");
             }
@@ -96,25 +91,41 @@ namespace MyBlog.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            bool isAuthor = IsAuthor((int)id);
+            bool isAdmin = IsAdmin();
 
-            if (!isAuthor)
+            if (isAdmin)
             {
-                return RedirectToAction("Index");
-            }
-            Article article = db.Articles.Find(id);
-            ArticleView articleView = ArticleView.ArticleData(article);
+                Article article = db.Articles.Find(id);
+                ArticleView articleView = ArticleView.ArticleData(article);
 
-            if (article == null)
-            {
-                return HttpNotFound();
+                if (article == null)
+                {
+                    return HttpNotFound();
+                }
+                return View(articleView);
             }
-            return View(articleView);
+            else
+            {
+                bool isAuthor = IsAuthor((int)id);
+
+                if (!isAuthor)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                Article article = db.Articles.Find(id);
+                ArticleView articleView = ArticleView.ArticleData(article);
+
+                if (article == null)
+                {
+                    return HttpNotFound();
+                }
+                return View(articleView);
+            }
+
         }
 
         // POST: Articles/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Title,Content")] ArticleView article)
@@ -164,15 +175,90 @@ namespace MyBlog.Controllers
 
         // POST: Articles/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int? id)
         {
-            Article article = db.Articles.Find(id);
-            db.Articles.Remove(article);
-            db.SaveChanges();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
 
-            string message = string.Format($"Статия {id} е изтрита успешно!");
-            this.AddNotification(message, NotificationType.SUCCESS);
+            bool isAdmin = IsAdmin();
 
+            if (isAdmin)
+            {
+                Article article = db.Articles.Find(id);
+
+                if (article == null)
+                {
+                    return HttpNotFound();
+                }
+
+                db.Articles.Remove(article);
+                db.SaveChanges();
+
+                string message = string.Format($"Статия {id} е изтрита успешно!");
+                this.AddNotification(message, NotificationType.SUCCESS);
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                bool isAuthor = IsAuthor((int)id);
+
+                if (!isAuthor)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                Article article = db.Articles.Find(id);
+
+                if (article == null)
+                {
+                    return HttpNotFound();
+                }
+
+                db.Articles.Remove(article);
+                db.SaveChanges();
+
+                string message = string.Format($"Статия {id} е изтрита успешно!");
+                this.AddNotification(message, NotificationType.SUCCESS);
+
+                return RedirectToAction("Index");
+            }
+
+
+        }
+
+        [HttpPost]
+        public ActionResult DeleteComment(int? id, int? articleId)
+        {
+            if (id == null || articleId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            bool isAdmin = IsAdmin();
+
+            if (isAdmin)
+            {
+                Comment comment = db.Comments.Find(id);
+
+                if (comment == null)
+                {
+                    return HttpNotFound();
+                }
+
+                db.Comments.Remove(comment);
+                db.SaveChanges();
+
+                string message = string.Format($"Коментар {id} е изтрит успешно!");
+                this.AddNotification(message, NotificationType.SUCCESS);
+
+                return RedirectToAction("Details", "Articles", new { id = articleId });
+            }
+
+            string messageError = string.Format($"Коментар {id} не е изтрит успешно! Нямате права.");
+            this.AddNotification(messageError, NotificationType.ERROR);
             return RedirectToAction("Index");
         }
 
@@ -200,8 +286,6 @@ namespace MyBlog.Controllers
 
             ArticleView articleView = ArticleView.ArticleData(article);
 
-
-
             return PartialView("_ShowComments", articleView);
         }
 
@@ -226,10 +310,17 @@ namespace MyBlog.Controllers
             return currentAuthorId;
         }
 
-        //public bool IsAdmin()
-        //{
+        public bool IsAdmin()
+        {
+            bool isAdmin = User.IsInRole("Admin");
 
-        //}
+            if (isAdmin)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -240,7 +331,5 @@ namespace MyBlog.Controllers
             base.Dispose(disposing);
         }
 
-
- 
     }
 }
