@@ -1,0 +1,290 @@
+﻿@model ListLeaveViewModel
+@{
+    ViewData["Title"] = "List";
+    int modalCount = 0;
+
+}
+
+
+<div class="row page-header">
+    <div class="col-md-9">
+        <h4>List of all leave days for @User.Identity.Name</h4>
+    </div>
+    <div class="col-md-3">
+        <form method="get" id="form-id-year">
+            <label>Select year</label>
+            <select asp-for="YearId" asp-items="Model.YearsList" class="form-control">
+                <option>Please, select year</option>
+            </select>
+            
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <p><a asp-action="Create" class="btn btn-primary">Create New</a></p>
+    </div>
+
+    @if (Model.LeaveDayDetails != null)
+    {
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            <h4 class="text-right">All paid leaves for @Model.LeaveDayDetails.CurrentYear - @Model.LeaveDayDetails.LeaveDayForYear<span>. </span>Remaining: @Model.LeaveDayDetails.RemainLeaveDay</h4>
+        </div>
+    }
+</div>
+
+@{
+    if (Model.LeavesList.Count() > 10)
+    {
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <ul class="pagination pagination-sm pager" id="myPager"></ul>
+            </div>
+        </div>
+    }
+}
+
+<div class="row">
+    <div class="filterable">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Year</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Leave type</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Total days</th>
+                    <th>Status</th>
+                    <th class="col-lg-2">Actions</th>
+
+                </tr>
+                <tr class="filters">
+                    <th><input type="text" class="form-control" placeholder="Id"></th>
+                    <th><input type="text" class="form-control" placeholder="Year"></th>
+                    <th><input type="text" class="form-control" placeholder="Name"></th>
+                    <th><input type="text" class="form-control" placeholder="Date"></th>
+                    <th><input type="text" class="form-control" placeholder="Leave type"></th>
+                    <th><input type="text" class="form-control" placeholder="Start date"></th>
+                    <th><input type="text" class="form-control" placeholder="End date"></th>
+                    <th><input type="text" class="form-control" placeholder="Total days"></th>
+                    <th><input type="text" class="form-control" placeholder="Status"></th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                @if (!Model.LeavesList.Any())
+                {
+
+                    <tr>
+                        <td colspan="9" class="text-center">No data found.</td>
+                    </tr>
+
+                }
+                else
+                {
+                    foreach (var item in Model.LeavesList)
+                    {
+                        <tr>
+                            <td>
+                                @item.Id
+                            </td>
+                            <td>
+                                @item.CurrentYear
+                            </td>
+                            <td>
+                                @item.FullName
+                            </td>
+                            <td>
+                                @item.TimeStamp.ToShortDateString()
+                            </td>
+                            <td>
+                                @{ 
+                                    string leaveType = item.LeaveType == LeaveType.NoPaid ? "No paid" : item.LeaveType.ToString();
+                                }
+
+                                @leaveType
+                            </td>
+                            <td>
+                                @item.StartDate.ToShortDateString()
+                            </td>
+                            <td>
+                                @item.EndDate.ToShortDateString()
+                            </td>
+                            <td>
+                                @item.TotalLeaveDays
+                            </td>
+                            <td>
+                                @if (item.LeaveStatus == LeaveStatus.Create)
+                                {
+                                    <span class="label label-primary text-center">@Html.DisplayFor(modelItem => item.LeaveStatus)</span>
+                                }
+                                else if (item.LeaveStatus == LeaveStatus.Send)
+                                {
+                                    <span class="label label-warning text-center">@Html.DisplayFor(modelItem => item.LeaveStatus)</span>
+                                }
+                                else if (item.LeaveStatus == LeaveStatus.Approve)
+                                {
+                                    <span class="label label-success text-center">@Html.DisplayFor(modelItem => item.LeaveStatus)</span>
+                                }
+                                else if (item.LeaveStatus == LeaveStatus.Denied)
+                                {
+                                    <span class="label label-danger text-center">@Html.DisplayFor(modelItem => item.LeaveStatus)</span>
+                                }
+                            </td>
+                            <td>
+
+                                @if (item.LeaveStatus == LeaveStatus.Create)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit">
+                                        <img class="icon-small-custom" src="~/images/img/edit-small.png" />
+                                    </a>
+
+                                    <a data-toggle="modal" data-target="#modal-delete-stamp-@modalCount" title="delete">
+                                        <img class="icon-small-custom" src="~/images/img/del-small.png" />
+                                    </a>
+
+                                    <div id="modal-delete-stamp-@modalCount" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+                                        <div class="modal-dialog modal-dialog-custom-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title text-center">Warning!!!</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="first-line text-center">Do you want to delete leave: @item.Id</p>
+
+                                                    <div class="row">
+                                                        <div class="col-xs-6 text-center">
+
+                                                            <form asp-action="Delete" asp-route-id="@item.Id" method="post">
+                                                                <input type="submit" class="btn btn-sm btn-success" value="Yes">
+                                                            </form>
+
+                                                        </div>
+
+                                                        <div class="col-xs-6 text-center">
+                                                            <button class="btn btn-danger btn-sm" data-dismiss="modal">No</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div><!-- /.modal-content -->
+                                        </div><!-- /.modal-dialog -->
+                                    </div><!-- /.modal -->
+
+                                }
+
+                                @if (item.LeaveStatus == LeaveStatus.Create)
+                                {
+                                    <a data-toggle="modal" data-target="#modal-change-stamp-@modalCount" title="Send for approval">
+                                        <img class="icon-small-custom" src="~/images/img/change-small.png" />
+                                    </a>
+
+                                    <div id="modal-change-stamp-@modalCount" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+                                        <div class="modal-dialog modal-dialog-custom-md">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title text-center">Warning!!!</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="first-line text-center">Do you want to send this leave to approve</p>
+
+                                                    <div class="row">
+                                                        <div class="col-xs-12 text-center">
+
+                                                            <form asp-action="Change" asp-route-id="@item.Id" method="post">
+                                                                <div class="row">
+                                                                    <div class="col-sm-3"></div>
+
+                                                                    @*<div class="col-xs-12 col-sm-6">
+                                                                        <select name="leaveStatus" asp-items="@Html.GetEnumSelectList<LeaveStatus>().Take(2)" class="form-control"></select>
+                                                                    </div>*@
+                                                                </div>
+                                                                <hr />
+
+                                                                <div class="row">
+                                                                    <div class="col-xs-6 text-center">
+                                                                        <input type="submit" class="btn btn-sm btn-success" value="Send">
+                                                                    </div>
+                                                                    <div class="col-xs-6 text-center">
+                                                                        <button class="btn btn-danger btn-sm" data-dismiss="modal">Cancel</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div><!-- /.modal-content -->
+                                        </div><!-- /.modal-dialog -->
+                                    </div><!-- /.modal -->
+                                }
+
+                            </td>
+                        </tr>
+                        modalCount++;
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+    <script src="~/js/pager.js"></script>
+
+    <script>
+            $(document).ready(function () {
+
+                $('#YearId').change(function () {
+                    var item = $(this).val();
+
+                    $('#form-id-year').submit();
+                 });
+
+                $('#myTable').pageMe({
+                    pagerSelector: '#myPager',
+                    showPrevNext: true,
+                    hidePageNumbers: false,
+                    perPage: 10
+                });
+
+                $('.filterable .filters input').keyup(function (e) {
+                    /* Ignore tab key */
+                    var code = e.keyCode || e.which;
+                    if (code == '9') return;
+                    /* Useful DOM data and selectors */
+                    var $input = $(this),
+                        inputContent = $input.val().toLowerCase(),
+                        $panel = $input.parents('.filterable'),
+                        column = $panel.find('.filters th').index($input.parents('th')),
+                        $table = $panel.find('.table'),
+                        $rows = $table.find('tbody tr');
+                    /* Dirtiest filter function ever ;) */
+                    var $filteredRows = $rows.filter(function () {
+                        var value = $(this).find('td').eq(column).text().toLowerCase();
+                        return value.indexOf(inputContent) === -1;
+                    });
+                    /* Clean previous no-result if exist */
+                    $table.find('tbody .no-result').remove();
+                    /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+                    $rows.show();
+                    $filteredRows.hide();
+                    /* Prepend no-result row if all rows are filtered */
+                    if ($filteredRows.length === $rows.length) {
+                        $table.find('tbody').prepend($('<tr class="no-result text-center text-danger"><td colspan="' + $table.find('.filters th').length + '"><b>No data found</b></td></tr>'));
+                    }
+                });
+            });
+
+    </script>
+}
+
+

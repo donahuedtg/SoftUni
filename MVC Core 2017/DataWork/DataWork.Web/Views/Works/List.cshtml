@@ -1,0 +1,161 @@
+﻿@model ListWorkViewModel
+@{
+    ViewData["Title"] = "List";
+}
+
+
+<div class="row page-header">
+    <div class="col-md-9">
+        <h2>All work list</h2>
+    </div>
+    <div class="col-md-3">
+        <form method="get" id="form-id-year">
+            <label>Select year</label>
+            <select asp-for="YearId" asp-items="Model.YearsList" class="form-control">
+                <option>Please, select year</option>
+            </select>
+
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <p>
+            <a asp-action="Create" class="btn btn-primary">Create New</a>
+        </p>
+    </div>
+</div>
+
+@{
+    if (Model.WorksList.Count() > 10)
+    {
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <ul class="pagination pagination-sm pager" id="myPager"></ul>
+            </div>
+        </div>
+    }
+}
+
+<div class="row">
+    <div class="filterable">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Project</th>
+                    <th>Name</th>
+                    <th class="col-lg-5">Description</th>
+                    <th>Last save</th>
+                    <th>Actions</th>
+
+                </tr>
+                <tr class="filters">
+                    <th><input type="text" class="form-control" placeholder="Date"></th>
+                    <th><input type="text" class="form-control" placeholder="Project"></th>
+                    <th><input type="text" class="form-control" placeholder="Name"></th>
+                    <th><input type="text" class="form-control" placeholder="Description"></th>
+                    <th><input type="text" class="form-control" placeholder="Last save"></th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                @if (!Model.WorksList.Any())
+                {
+
+                    <tr>
+                        <td colspan="5" class="text-center">No data found</td>
+                    </tr>
+
+                }
+                else
+                {
+                    foreach (var item in Model.WorksList)
+                    {
+                        <tr>
+                            <td>
+                                @item.WorkDate.ToShortDateString()
+                            </td>
+                            <td>
+                                @item.ProjectName
+                            </td>
+                            <td>
+                                @item.FullName
+                            </td>
+                            <td class="text-justify">
+                                @item.Description
+                            </td>
+                            <td>
+                                @item.TimeStamp
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" >
+                                    <img class="icon-small-custom" src="~/images/img/edit-small.png" />
+                                </a>
+                            </td>
+                        </tr>
+
+                    }
+
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+@section Scripts{
+    <script src="~/js/pager.js"></script>
+
+    <script>
+            $(document).ready(function () {
+
+                $('#YearId').change(function () {
+                    var item = $(this).val();
+
+                    $('#form-id-year').submit();
+                });
+
+                $('#myTable').pageMe({ pagerSelector: '#myPager', showPrevNext: true, hidePageNumbers: false, perPage: 10 });
+
+
+                $('.filterable .filters input').keyup(function (e) {
+                    /* Ignore tab key */
+                    var code = e.keyCode || e.which;
+                    if (code == '9') return;
+                    /* Useful DOM data and selectors */
+                    var $input = $(this),
+                        inputContent = $input.val().toLowerCase(),
+                        $panel = $input.parents('.filterable'),
+                        column = $panel.find('.filters th').index($input.parents('th')),
+                        $table = $panel.find('.table'),
+                        $rows = $table.find('tbody tr');
+                    /* Dirtiest filter function ever ;) */
+                    var $filteredRows = $rows.filter(function () {
+                        var value = $(this).find('td').eq(column).text().toLowerCase();
+                        return value.indexOf(inputContent) === -1;
+                    });
+                    /* Clean previous no-result if exist */
+                    $table.find('tbody .no-result').remove();
+                    /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+                    $rows.show();
+                    $filteredRows.hide();
+                    /* Prepend no-result row if all rows are filtered */
+                    if ($filteredRows.length === $rows.length) {
+                        $table.find('tbody').prepend($('<tr class="no-result text-center text-danger"><td colspan="' + $table.find('.filters th').length + '"><b>No data found</b></td></tr>'));
+                    }
+                });
+            });
+
+
+    </script>
+}
+
+
+

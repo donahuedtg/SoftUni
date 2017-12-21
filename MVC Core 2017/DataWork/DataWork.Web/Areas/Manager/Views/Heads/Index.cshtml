@@ -1,0 +1,39 @@
+﻿@model HeadsLeaveForApproveViewModel
+@{
+    ViewData["Title"] = "Index";
+
+    string leaveRequest = Model.Count == 0 ? "No requests for approval" : $"You have {Model.Count} requests for approval";
+}
+
+<div class="jumbotron">
+    <h1>Leave and Work System</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Leave Info</h2>
+        <p>
+            <a asp-action="List" asp-controller="@GlobalConstString.ControllerHeads" class="btn btn-danger">
+                <span class="badge">@leaveRequest</span>
+            </a>
+        </p>
+    </div>
+
+    <div class="col-md-4">
+        <h2>Leave</h2>
+        <p>
+            Create a leave request.
+        </p>
+        <p><a asp-action="Create" asp-controller="@GlobalConstString.ControllerLeaves" class="btn btn-default">Create New</a></p>
+    </div>
+
+    <div class="col-md-4">
+        <h2>Work Notes</h2>
+        <p>
+            Create a work notes by days, months, years.
+        </p>
+        <p><a asp-action="Create" asp-controller="@GlobalConstString.ControllerWorks" class="btn btn-default">Create New</a></p>
+    </div>
+
+</div>
+

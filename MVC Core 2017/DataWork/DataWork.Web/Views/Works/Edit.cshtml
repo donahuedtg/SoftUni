@@ -1,0 +1,47 @@
+﻿@model EditWorkBindModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="row page-header">
+    <div class="col-md-2 col-md-offset-2">
+        <h2>Edit</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 col-md-offset-2">
+        <form method="post">
+
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="ProjectNameId"></label>
+
+                <select asp-for="ProjectNameId" asp-items="Model.ProjectNameList" class="form-control"></select>
+                <span asp-validation-for="ProjectNameId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="WorkDate"></label>
+                <input asp-for="WorkDate" class="form-control" />
+                <span asp-validation-for="WorkDate" class="text-danger"></span>
+            </div>
+
+            <a asp-action="List" class="btn btn-default">Back</a>
+            <button type="submit" class="btn btn-success">Edit</button>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

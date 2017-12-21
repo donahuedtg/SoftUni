@@ -1,0 +1,54 @@
+﻿@model EditLeaveBindModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="row page-header">
+    <div class="col-md-2 col-md-offset-2">
+        <h2>Edit</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 col-md-offset-2">
+        <form method="post">
+
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="LeaveTypeId"></label>
+
+                <select asp-for="LeaveTypeId" asp-items="@Html.GetEnumSelectList<LeaveType>()" class="form-control"></select>
+                <span asp-validation-for="LeaveTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StartDate"></label>
+                <input asp-for="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="EndDate"></label>
+                <input asp-for="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TotalLeaveDays"></label>
+                <input asp-for="TotalLeaveDays" class="form-control" min="0" />
+                <span asp-validation-for="TotalLeaveDays" class="text-danger"></span>
+            </div>
+
+            <a asp-action="List" class="btn btn-default">Back</a>
+            <button type="submit" class="btn btn-success">Edit</button>
+            
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
